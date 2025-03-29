@@ -4,6 +4,4 @@ A simple, CLI todo-app created as a practice project. As of right now, I have no
 but those are WIP.
 
 ## WIP Features
-* Saving using an external CSV-file
-* Toggling the status of a task
 * Layout changes
