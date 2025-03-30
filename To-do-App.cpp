@@ -71,7 +71,7 @@ std::vector<Task> read_taskfile(const std::filesystem::path filepath)
         std::getline(ss, task_status_str);
 
         // Convert the status from string to bool
-        bool task_status = atoi(task_status_str.c_str()) == 0 ? false : true;
+        bool task_status = std::stoi(task_status_str.c_str()) == 0 ? false : true;
 
         // Add task to tasklist
         tasks.push_back(Task{ task_label, task_status });
@@ -156,7 +156,7 @@ int main()
             std::getline(std::cin, index);
 
             // Converts string to an int
-            int index_int = atoi(index.c_str());
+            int index_int = std::stoi(index.c_str());
 
             // If index is out of bounds, do nothing
             if (index_int < 1 || index_int > tasks.size())
@@ -176,7 +176,7 @@ int main()
             std::getline(std::cin, index);
 
             // Converts string to an int
-            int index_int = atoi(index.c_str());
+            int index_int = std::stoi(index.c_str());
 
             // If index is out of bounds, do nothing
             if (index_int < 1 || index_int > tasks.size())
