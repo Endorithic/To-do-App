@@ -8,12 +8,30 @@
 const std::string ANSI_REFRESH = "\033[2J\033[H";
 
 // Creates an enum to hold task priority
-enum Priority
+enum class Priority
 {
     low = 1,
     medium = 2,
     high = 3
 };
+
+
+std::ostream& operator<<(std::ostream& os, Priority p)
+{
+    switch (p)
+    {
+    case Priority::low:
+        os << 1;
+        break;
+    case Priority::medium:
+        os << 2;
+        break;
+    case Priority::high:
+        os << 3;
+        break;
+    }
+    return os;
+}
 
 // Defines a struct to hold task information
 struct Task
@@ -24,7 +42,6 @@ struct Task
     Priority task_priority;
 
     // Contructors
-    Task() : label(), is_completed() {}
     Task(std::string label) : label(label), is_completed(false), task_priority(Priority::low) {}
     Task(std::string label, bool is_completed, Priority task_priority) : label(label), is_completed(is_completed), task_priority(task_priority) {}
 
@@ -43,17 +60,17 @@ struct Task
         // Handle priority color
         switch (task.task_priority)
         {
-        case low:
+        case Priority::low:
             // Green
             os << "\033[32m";
             break;
 
-        case medium:
+        case Priority::medium:
             // Yellow
             os << "\033[33m";
             break;
 
-        case high:
+        case Priority::high:
             // Red
             os << "\033[31m";
             break;
@@ -206,7 +223,7 @@ int main()
             // If index is out of bounds, do nothing
             if (index_int < 1 || index_int > tasks.size())
             {
-                std::cout << "\033[2J\033[H";
+                std::cout << ANSI_REFRESH;
                 list_all_tasks(tasks);
                 continue;
             }
@@ -226,7 +243,7 @@ int main()
             // If index is out of bounds, do nothing
             if (index_int < 1 || index_int > tasks.size())
             {
-                std::cout << "\033[2J\033[H";
+                std::cout << ANSI_REFRESH;
                 list_all_tasks(tasks);
                 continue;
             }
@@ -248,7 +265,7 @@ int main()
             // If index is out of bounds, do nothing
             if (index_int < 1 || index_int > tasks.size())
             {
-                std::cout << "\033[2J\033[H";
+                std::cout << ANSI_REFRESH;
                 list_all_tasks(tasks);
                 continue;
             }
@@ -256,7 +273,7 @@ int main()
             // If priority is not valid, do nothing
             if (priority != "low" && priority != "medium" && priority != "high")
             {
-                std::cout << "\033[2J\033[H";
+                std::cout << ANSI_REFRESH;
                 list_all_tasks(tasks);
                 continue;
             }
