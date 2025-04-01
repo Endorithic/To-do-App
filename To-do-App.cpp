@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <functional>
 
 const std::string ANSI_REFRESH = "\033[2J\033[H";
 
@@ -53,7 +54,7 @@ struct Task
             break;
 
         case high:
-            // red
+            // Red
             os << "\033[31m";
             break;
         }
@@ -99,11 +100,11 @@ std::vector<Task> read_taskfile(const std::filesystem::path filepath)
         std::string task_label, task_status_str;
         std::string task_priority;
         std::getline(ss, task_label, ',');
-        std::getline(ss, task_priority, ',');
-        std::getline(ss, task_status_str);
+        std::getline(ss, task_status_str, ',');
+        std::getline(ss, task_priority);
 
         // Convert the status from string to bool
-        bool task_status = std::stoi(task_status_str) == 0 ? false : true;
+        bool task_status = std::stoi(task_status_str) == 0;
 
         // Cast the priority to enum type
         Priority task_priority_int = static_cast<Priority>(std::stoi(task_priority));
@@ -188,6 +189,9 @@ int main()
                 list_all_tasks(tasks);
             }
 
+            // Remove tralining whitespace
+            label.erase(label.begin());
+
             tasks.push_back(Task(label));
         }
 
@@ -250,7 +254,7 @@ int main()
             }
 
             // If priority is not valid, do nothing
-            if (priority != "low" || priority != "medium" || priority != "high")
+            if (priority != "low" && priority != "medium" && priority != "high")
             {
                 std::cout << "\033[2J\033[H";
                 list_all_tasks(tasks);
