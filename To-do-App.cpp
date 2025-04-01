@@ -3,7 +3,6 @@
 #include <iostream>
 #include <sstream>
 #include <string>
-#include <functional>
 
 const std::string ANSI_REFRESH = "\033[2J\033[H";
 
