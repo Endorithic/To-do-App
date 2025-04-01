@@ -6,17 +6,26 @@
 
 const std::string ANSI_REFRESH = "\033[2J\033[H";
 
+// Creates an enum to hold task priority
+enum Priority
+{
+    low = 1,
+    medium = 2,
+    high = 3
+};
+
 // Defines a struct to hold task information
 struct Task
 {
     // Instance data
     std::string label;
     bool is_completed;
+    Priority task_priority;
 
     // Contructors
     Task() : label(), is_completed() {}
-    Task(std::string label) : label(label), is_completed(false) {}
-    Task(std::string label, bool is_completed) : label(label), is_completed(is_completed) {}
+    Task(std::string label) : label(label), is_completed(false), task_priority(Priority::low) {}
+    Task(std::string label, bool is_completed, Priority task_priority) : label(label), is_completed(is_completed), task_priority(task_priority) {}
 
     // Use default destructor
     ~Task() = default;
@@ -30,7 +39,28 @@ struct Task
     // Overloads the << operator for use with output stream
     friend std::ostream& operator<<(std::ostream& os, const Task& task)
     {
+        // Handle priority color
+        switch (task.task_priority)
+        {
+        case low:
+            // Green
+            os << "\033[32m";
+            break;
+
+        case medium:
+            // Yellow
+            os << "\033[33m";
+            break;
+
+        case high:
+            // red
+            os << "\033[31m";
+            break;
+        }
         os << '[' << (task.is_completed ? 'X' : ' ') << "] " << task.label;
+        
+        // Make text white again
+        os << "\033[37m";
         return os;
     }
 };
@@ -67,14 +97,19 @@ std::vector<Task> read_taskfile(const std::filesystem::path filepath)
     {
         std::stringstream ss{ line };
         std::string task_label, task_status_str;
+        std::string task_priority;
         std::getline(ss, task_label, ',');
+        std::getline(ss, task_priority, ',');
         std::getline(ss, task_status_str);
 
         // Convert the status from string to bool
-        bool task_status = std::stoi(task_status_str.c_str()) == 0 ? false : true;
+        bool task_status = std::stoi(task_status_str) == 0 ? false : true;
+
+        // Cast the priority to enum type
+        Priority task_priority_int = static_cast<Priority>(std::stoi(task_priority));
 
         // Add task to tasklist
-        tasks.push_back(Task{ task_label, task_status });
+        tasks.push_back(Task{ task_label, task_status, task_priority_int });
     }
 
     return tasks;
@@ -105,7 +140,7 @@ void write_taskfile(const std::filesystem::path filepath, const std::vector<Task
     std::ofstream taskfile{ filepath };
     for (Task task : task_vec)
     {
-        taskfile << task.label << ',' << (task.is_finished() ? '1' : '0') << '\n';
+        taskfile << task.label << ',' << (task.is_finished() ? '1' : '0') << ',' << task.task_priority << '\n';
     }
 }
 
@@ -135,6 +170,12 @@ int main()
             return 0;
         }
 
+        else if (command == "save")
+        {
+            // Write all tasks to taskfile
+            write_taskfile(taskfile_path, tasks);
+        }
+
         else if (command == "create")
         {
             std::string label;
@@ -156,7 +197,7 @@ int main()
             std::getline(std::cin, index);
 
             // Converts string to an int
-            int index_int = std::stoi(index.c_str());
+            int index_int = std::stoi(index);
 
             // If index is out of bounds, do nothing
             if (index_int < 1 || index_int > tasks.size())
@@ -176,7 +217,7 @@ int main()
             std::getline(std::cin, index);
 
             // Converts string to an int
-            int index_int = std::stoi(index.c_str());
+            int index_int = std::stoi(index);
 
             // If index is out of bounds, do nothing
             if (index_int < 1 || index_int > tasks.size())
@@ -188,6 +229,47 @@ int main()
 
             // Toggle task at index
             tasks[index_int - 1].toggle();
+        }
+
+        else if (command == "priority")
+        {
+            std::string index;
+            std::string priority;
+
+            std::cin >> index >> priority;
+
+            // Converts string to int
+            int index_int = std::stoi(index);
+
+            // If index is out of bounds, do nothing
+            if (index_int < 1 || index_int > tasks.size())
+            {
+                std::cout << "\033[2J\033[H";
+                list_all_tasks(tasks);
+                continue;
+            }
+
+            // If priority is not valid, do nothing
+            if (priority != "low" || priority != "medium" || priority != "high")
+            {
+                std::cout << "\033[2J\033[H";
+                list_all_tasks(tasks);
+                continue;
+            }
+
+            // Change priority of task at index
+            if (priority == "low")
+            {
+                tasks[index_int - 1].task_priority = Priority::low;
+            }
+            else if (priority == "medium")
+            {
+                tasks[index_int - 1].task_priority = Priority::medium;
+            }
+            else
+            {
+                tasks[index_int - 1].task_priority = Priority::high;
+            }
         }
 
         // Refresh task display
