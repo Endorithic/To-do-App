@@ -104,7 +104,7 @@ std::vector<Task> read_taskfile(const std::filesystem::path filepath)
         std::getline(ss, task_priority);
 
         // Convert the status from string to bool
-        bool task_status = std::stoi(task_status_str) == 0;
+        bool task_status = std::stoi(task_status_str) != 0;
 
         // Cast the priority to enum type
         Priority task_priority_int = static_cast<Priority>(std::stoi(task_priority));
